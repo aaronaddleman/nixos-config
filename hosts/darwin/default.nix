@@ -33,6 +33,7 @@ let user = "aaron"; in
   system.checks.verifyNixPath = false;
 
   environment.systemPackages = with pkgs; [
+    postman
     emacs-unstable
     aerospace
   ] ++ (import ../../modules/shared/packages.nix { inherit pkgs; });

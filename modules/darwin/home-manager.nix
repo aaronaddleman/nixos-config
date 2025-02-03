@@ -40,7 +40,12 @@ in
       #"hidden-bar" = 1452453066;
       #"wireguard" = 1451685025;
       "Xcode" = 497799835;
+      "TickTick:To-Do List, Calendar" = 966085870;
     };
+
+    brews = [
+      "heroku"
+    ];
   };
 
   # Enable home-manager

@@ -24,13 +24,17 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+    heroku-taps = {
+      url = "github:heroku/heroku-taps";
+      flake = false;
+    };
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, darwin, nix-homebrew, homebrew-bundle, homebrew-core, homebrew-cask, home-manager, mac-app-util, nixpkgs, disko } @inputs:
+  outputs = { self, darwin, nix-homebrew, homebrew-bundle, homebrew-core, homebrew-cask, home-manager, heroku-taps, mac-app-util, nixpkgs, disko } @inputs:
     let
       user = "aaron";
       linuxSystems = [ "x86_64-linux" "aarch64-linux" ];
@@ -90,6 +94,7 @@
                 home-manager.users.aaron.imports = [
                   mac-app-util.homeManagerModules.default
                 ];
+                homebrew.taps = builtins.attrNames config.nix-homebrew.taps;
               }
             )
             nix-homebrew.darwinModules.nix-homebrew
@@ -101,6 +106,7 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
+                  "heroku/homebrew-heroku" = heroku-taps;
                 };
                 mutableTaps = false;
                 autoMigrate = true;
