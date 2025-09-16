@@ -1,0 +1,6 @@
+_:
+
+[
+  # System Tools
+  "sketchybar"
+]

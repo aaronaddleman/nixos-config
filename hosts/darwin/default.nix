@@ -12,8 +12,8 @@ let user = "aaron"; in
      agenix.darwinModules.default
   ];
 
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
+  # Set primary user for system defaults
+  system.primaryUser = user;
 
   # Setup user, packages, programs
   nix = {
@@ -21,7 +21,6 @@ let user = "aaron"; in
     settings.trusted-users = [ "@admin" "${user}" ];
 
     gc = {
-      user = "root";
       automatic = true;
       interval = { Weekday = 0; Hour = 2; Minute = 0; };
       options = "--delete-older-than 30d";
@@ -41,9 +40,6 @@ let user = "aaron"; in
     emacs
     agenix.packages."${pkgs.system}".default
   ] ++ (import ../../modules/shared/packages.nix { inherit pkgs; });
-
-  # Enable fonts dir
-  fonts.fontDir.enable = true;
 
   launchd.user.agents.emacs.path = [ config.environment.systemPath ];
   launchd.user.agents.emacs.serviceConfig = {
