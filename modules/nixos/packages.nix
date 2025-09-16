@@ -24,6 +24,7 @@ shared-packages ++ [
   galculator
 
   # Audio tools
+  cava # Terminal audio visualizer
   pavucontrol # Pulse audio controls
 
   # Testing and development tools
@@ -64,6 +65,4 @@ shared-packages ++ [
 
   # Music and entertainment
   spotify
-
-  mac-app-util
 ]

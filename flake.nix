@@ -1,9 +1,8 @@
 {
-  description = "Starter Configuration for MacOS and NixOS";
-
+  description = "Starter Configuration with secrets for MacOS and NixOS";
   inputs = {
-    mac-app-util.url = "github:hraban/mac-app-util";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    agenix.url = "github:ryantm/agenix";
     home-manager.url = "github:nix-community/home-manager";
     darwin = {
       url = "github:LnL7/nix-darwin/master";
@@ -23,18 +22,17 @@
     homebrew-cask = {
       url = "github:homebrew/homebrew-cask";
       flake = false;
-    };
-    heroku-taps = {
-      url = "github:heroku/heroku-taps";
-      flake = false;
-    };
+    }; 
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # secrets = {
+    #   url = "git+ssh://git@github.com/aaronaddleman/nix-secrets.git?ref=main";
+    #   flake = false;
+    # };
   };
-
-  outputs = { self, darwin, nix-homebrew, homebrew-bundle, homebrew-core, homebrew-cask, home-manager, heroku-taps, mac-app-util, nixpkgs, disko } @inputs:
+  outputs = { self, darwin, nix-homebrew, homebrew-bundle, homebrew-core, homebrew-cask, home-manager, nixpkgs, disko, agenix } @inputs:
     let
       user = "aaron";
       linuxSystems = [ "x86_64-linux" "aarch64-linux" ];
@@ -42,7 +40,7 @@
       forAllSystems = f: nixpkgs.lib.genAttrs (linuxSystems ++ darwinSystems) f;
       devShell = system: let pkgs = nixpkgs.legacyPackages.${system}; in {
         default = with pkgs; mkShell {
-          nativeBuildInputs = with pkgs; [ bashInteractive git ];
+          nativeBuildInputs = with pkgs; [ bashInteractive git age age-plugin-yubikey ];
           shellHook = with pkgs; ''
             export EDITOR=vim
           '';
@@ -64,6 +62,7 @@
         "create-keys" = mkApp "create-keys" system;
         "check-keys" = mkApp "check-keys" system;
         "install" = mkApp "install" system;
+        "install-with-secrets" = mkApp "install-with-secrets" system;
       };
       mkDarwinApps = system: {
         "apply" = mkApp "apply" system;
@@ -79,24 +78,12 @@
       devShells = forAllSystems devShell;
       apps = nixpkgs.lib.genAttrs linuxSystems mkLinuxApps // nixpkgs.lib.genAttrs darwinSystems mkDarwinApps;
 
-      darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (system: let
-        user = "aaron";
-      in
+      darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (system:
         darwin.lib.darwinSystem {
           inherit system;
           specialArgs = inputs;
           modules = [
             home-manager.darwinModules.home-manager
-            (
-              { pkgs, config, inputs, ... }:
-              {
-                # Or to enable it for a single user only:
-                home-manager.users.aaron.imports = [
-                  mac-app-util.homeManagerModules.default
-                ];
-                homebrew.taps = builtins.attrNames config.nix-homebrew.taps;
-              }
-            )
             nix-homebrew.darwinModules.nix-homebrew
             {
               nix-homebrew = {
@@ -106,14 +93,12 @@
                   "homebrew/homebrew-core" = homebrew-core;
                   "homebrew/homebrew-cask" = homebrew-cask;
                   "homebrew/homebrew-bundle" = homebrew-bundle;
-                  "heroku/homebrew-heroku" = heroku-taps;
                 };
                 mutableTaps = false;
                 autoMigrate = true;
               };
             }
             ./hosts/darwin
-            mac-app-util.darwinModules.default
           ];
         }
       );

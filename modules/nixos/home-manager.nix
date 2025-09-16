@@ -41,11 +41,11 @@ in
     enable = true;
     iconTheme = {
       name = "Adwaita-dark";
-      package = pkgs.adwaita-icon-theme;
+      package = pkgs.gnome.adwaita-icon-theme;
     };
     theme = {
       name = "Adwaita-dark";
-      package = pkgs.adwaita-icon-theme;
+      package = pkgs.gnome.adwaita-icon-theme;
     };
   };
 
@@ -114,6 +114,6 @@ in
     };
   };
 
-  programs = shared-programs // {};
+  programs = shared-programs // { gpg.enable = true; };
 
 }
