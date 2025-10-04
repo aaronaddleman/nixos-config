@@ -25,6 +25,7 @@ with pkgs; [
   # Cloud-related tools and SDKs
   docker
   docker-compose
+  twilio-cli
 
   # Media-related packages
   dejavu_fonts
