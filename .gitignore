@@ -1,0 +1,17 @@
+# Nix build results
+result
+result-*
+
+# Temporary files
+.DS_Store
+*~
+*.tmp
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
