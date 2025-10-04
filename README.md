@@ -2,6 +2,35 @@
 
 This repository contains NixOS and nix-darwin configurations using Nix flakes.
 
+## Quick Start
+
+### Apply Configuration Changes (macOS)
+
+The recommended approach uses a two-step process for safety and clarity:
+
+```bash
+# Step 1: Build the configuration (fast, no system changes)
+nix run .#build-switch
+
+# Step 2: Apply to system (requires sudo for system-level changes)
+sudo ./result/sw/bin/darwin-rebuild switch --flake .#aarch64-darwin
+```
+
+**Why two steps?**
+- Step 1 verifies everything builds correctly without requiring sudo
+- Step 2 applies the changes with appropriate privileges
+- If Step 1 fails, no system changes are attempted
+
+### Quick Commands
+
+```bash
+# Build only (test configuration)
+nix build .#darwinConfigurations.aarch64-darwin.system
+
+# Rollback if something goes wrong
+sudo darwin-rebuild rollback
+```
+
 ## Common Nix Commands
 
 ### Flake Apps (Custom Scripts)
@@ -46,22 +75,26 @@ nix flake check
 
 #### macOS (nix-darwin)
 ```bash
-# Build configuration
-nix build .#darwinConfigurations.<hostname>.system
-
-# Build for specific architecture (useful for M1/M2 Macs)
-nix build .#darwinConfigurations.aarch64-darwin.system --show-trace
-
-# Build and switch using flake apps (recommended)
+# Recommended: Two-step build and switch process
+# Step 1: Build configuration (as regular user)
 nix run .#build-switch
 
-# Apply configuration using flake app
-nix run .#apply
+# Step 2: Apply system changes (requires sudo)
+sudo ./result/sw/bin/darwin-rebuild switch --flake .#aarch64-darwin
 
-# Traditional darwin-rebuild commands
-darwin-rebuild switch --flake .
-darwin-rebuild build --flake .
-darwin-rebuild rollback
+# Alternative: Build for specific architecture
+nix build .#darwinConfigurations.aarch64-darwin.system --show-trace
+
+# Traditional single-step commands (also work)
+sudo darwin-rebuild switch --flake .#aarch64-darwin
+sudo darwin-rebuild build --flake .#aarch64-darwin
+
+# Rollback to previous generation
+sudo darwin-rebuild rollback
+
+# Other flake apps
+nix run .#apply    # Alternative build and switch method
+nix run .#build    # Build only
 ```
 
 #### NixOS (Linux)
@@ -253,8 +286,23 @@ nixos-rebuild switch --flake . --target-host <hostname>
 
 1. **Flake lock conflicts**: `nix flake update` or edit `flake.lock` manually
 2. **Build failures**: Check logs with `nix log` or use `--show-trace` for detailed errors
-3. **Generation rollback**: Use `nixos-rebuild switch --rollback` or `darwin-rebuild rollback`
+3. **Generation rollback**: Use `sudo darwin-rebuild rollback` or `nixos-rebuild switch --rollback`
 4. **Storage cleanup**: Run `nix-collect-garbage -d` to free up space
+5. **GID mismatch error**: If you see "Build user group has mismatching GID", add `ids.gids.nixbld = 350;` to your darwin configuration
+
+### GID Mismatch Fix
+
+If you encounter this error:
+```
+error: Build user group has mismatching GID, aborting activation
+The default Nix build user group ID was changed from 30000 to 350.
+```
+
+Add this to your `hosts/darwin/default.nix`:
+```nix
+# Fix nix-darwin GID configuration
+ids.gids.nixbld = 350;
+```
 
 ### Useful Debugging Options
 
@@ -288,7 +336,33 @@ nixos-rebuild switch --flake . --dry-run
 
 ## Getting Started
 
+### macOS Setup
+
+1. **Clone this repository**
+   ```bash
+   git clone <repository-url>
+   cd nixos-config-github
+   ```
+
+2. **Test the configuration builds**
+   ```bash
+   nix build .#darwinConfigurations.aarch64-darwin.system
+   ```
+
+3. **Apply the configuration**
+   ```bash
+   # Build first (safe, no system changes)
+   nix run .#build-switch
+   
+   # Apply to system (requires sudo)
+   sudo ./result/sw/bin/darwin-rebuild switch --flake .#aarch64-darwin
+   ```
+
+4. **Restart your terminal or shell** to pick up new environment
+
+### Linux Setup
+
 1. Clone this repository
 2. Update hardware configuration in appropriate host file
-3. Run initial build: `nixos-rebuild switch --flake .` (Linux) or `darwin-rebuild switch --flake .` (macOS)
+3. Run initial build: `sudo nixos-rebuild switch --flake .`
 4. Reboot and enjoy your new system configuration!
