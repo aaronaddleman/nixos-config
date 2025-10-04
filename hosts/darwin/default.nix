@@ -15,6 +15,9 @@ let user = "aaron"; in
   # Set primary user for system defaults
   system.primaryUser = user;
 
+  # Fix nix-darwin GID configuration
+  ids.gids.nixbld = 350;
+
   # Setup user, packages, programs
   nix = {
     package = pkgs.nixVersions.latest;
