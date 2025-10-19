@@ -24,7 +24,7 @@ in
   };
 
   homebrew = {
-    enable = true;
+    enable = false;
     casks = pkgs.callPackage ./casks.nix {};
 
     # These app IDs are from using the mas CLI app

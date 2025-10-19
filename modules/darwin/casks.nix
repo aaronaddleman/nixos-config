@@ -21,6 +21,9 @@ _:
   # Productivity Tools
   "raycast"
 
+  # Window Management
+  "amethyst"
+
   # Browsers
   "google-chrome"
 ]

@@ -61,6 +61,11 @@ let name = "Aaron Addleman";
 
       # Always color ls and group directories
       alias ls='ls --color=auto'
+
+      # Setup Twilio CLI autocompletion
+      if command -v twilio >/dev/null 2>&1; then
+        eval "$(twilio autocomplete:script zsh)"
+      fi
     '';
   };
 
@@ -77,6 +82,15 @@ let name = "Aaron Addleman";
       core = {
 	    editor = "vim";
         autocrlf = "input";
+      };
+      user = {
+        signingkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM60uT4wKWg9oK4iOd0sZFW6YG7v0U5gsrwUyjvGNEAa";
+      };
+      gpg = {
+        format = "ssh";
+        ssh = {
+          program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
+        };
       };
       commit.gpgsign = true;
       pull.rebase = true;
@@ -270,6 +284,9 @@ let name = "Aaron Addleman";
       )
     ];
     matchBlocks = {
+      "*" = {
+        identityAgent = "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock";
+      };
       "github.com" = {
         identitiesOnly = true;
         identityFile = [
